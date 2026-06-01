@@ -22,38 +22,52 @@ jobs:
       - name: Install Cordova
         run: npm install -g cordova
       
-      - name: Build APK (not AAB)
+      - name: Build APK with Android 14 support
         run: |
           cordova create app com.rmzteam.toolshub "RMZ Tools Hub"
           cd app
-          cordova platform add android
+          cordova platform add android@latest
           rm -rf www/*
           cp ../index.html www/index.html
           
-          # Force APK instead of AAB
-          cordova build android --release -- --packageType=apk
+          # Update config.xml for Android 14
+          cat > config.xml << 'EOF'
+          <?xml version='1.0' encoding='utf-8'?>
+          <widget id="com.rmzteam.toolshub" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+              <name>RMZ Tools Hub</name>
+              <description>All Tools in One App</description>
+              <author email="rmzteam@proton.me" href="https://t.me/realmoneyincomezone">RMZ Team</author>
+              <content src="index.html" />
+              <access origin="*" />
+              <allow-intent href="http://*/*" />
+              <allow-intent href="https://*/*" />
+              <allow-intent href="tel:*" />
+              <allow-intent href="sms:*" />
+              <allow-intent href="mailto:*" />
+              <allow-intent href="geo:*" />
+              <platform name="android">
+                  <allow-intent href="market:*" />
+                  <preference name="android-minSdkVersion" value="21" />
+                  <preference name="android-targetSdkVersion" value="34" />
+                  <preference name="android-compileSdkVersion" value="34" />
+              </platform>
+              <preference name="Orientation" value="default" />
+              <preference name="Fullscreen" value="false" />
+              <preference name="StatusBarBackgroundColor" value="#1abc9c" />
+          </widget>
+          EOF
           
-          # Show where APK is
-          find . -name "*.apk" -type f
-      
-      - name: Sign APK
-        run: |
-          # Find the APK file
-          APK_PATH=$(find app -name "*.apk" -type f | head -1)
-          APK_DIR=$(dirname $APK_PATH)
-          cd $APK_DIR
+          # Build
+          cordova build android --release
           
-          # Generate keystore
+          # Sign
+          cd platforms/android/app/build/outputs/apk/release/
           keytool -genkey -v -keystore debug.keystore -alias debug -keyalg RSA -keysize 2048 -validity 10000 -storepass android -keypass android -dname "CN=RMZ, OU=ID, O=RMZ, L=Dhaka, ST=Dhaka, C=BD" 2>/dev/null
-          
-          # Sign the APK
-          jarsigner -verbose -keystore debug.keystore -storepass android -keypass android *.apk debug
-          
-          # Rename for easy download
-          cp *.apk /home/runner/work/rmz-tools-hub/rmz-tools-hub/RMZ-Tools-Hub.apk
+          jarsigner -verbose -keystore debug.keystore -storepass android -keypass android app-release-unsigned.apk debug
+          cp app-release-unsigned.apk /home/runner/work/rmz-tools-hub/rmz-tools-hub/RMZ-Tools-Hub-Android14.apk
       
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: RMZ-Tools-Hub
-          path: /home/runner/work/rmz-tools-hub/rmz-tools-hub/RMZ-Tools-Hub.apk
+          name: RMZ-Tools-Hub-Android14
+          path: /home/runner/work/rmz-tools-hub/rmz-tools-hub/RMZ-Tools-Hub-Android14.apk
