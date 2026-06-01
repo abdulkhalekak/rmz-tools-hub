@@ -8,7 +8,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: write  # Release তৈরি করার অনুমতি
+      contents: write
     
     steps:
       - uses: actions/checkout@v4
@@ -25,20 +25,25 @@ jobs:
       - name: Install Cordova
         run: npm install -g cordova
       
-      - name: Build APK
+      - name: Build Debug APK (সরাসরি ইন্সটলযোগ্য)
         run: |
+          # Cordova প্রজেক্ট তৈরি
           cordova create app com.rmzteam.toolshub "RMZ Tools Hub"
           cd app
           cordova platform add android
+          
+          # HTML ফাইল কপি
           rm -rf www/*
           cp ../index.html www/index.html
-          cordova build android --release
           
-          # Sign
-          cd platforms/android/app/build/outputs/apk/release/
-          keytool -genkey -v -keystore debug.keystore -alias debug -keyalg RSA -keysize 2048 -validity 10000 -storepass android -keypass android -dname "CN=RMZ, OU=ID, O=RMZ, L=Dhaka, ST=Dhaka, C=BD" 2>/dev/null
-          jarsigner -verbose -keystore debug.keystore -storepass android -keypass android app-release-unsigned.apk debug
-          cp app-release-unsigned.apk /home/runner/work/rmz-tools-hub/rmz-tools-hub/RMZ-Tools-Hub.apk
+          # Debug বিল্ড (ইতিমধ্যেই সাইন করা থাকে)
+          cordova build android --debug
+          
+          # Debug APK কপি
+          cp platforms/android/app/build/outputs/apk/debug/app-debug.apk /home/runner/work/rmz-tools-hub/rmz-tools-hub/RMZ-Tools-Hub.apk
+          
+          # সাইজ চেক
+          ls -la /home/runner/work/rmz-tools-hub/rmz-tools-hub/RMZ-Tools-Hub.apk
       
       - name: Create Release and Upload APK
         uses: softprops/action-gh-release@v1
