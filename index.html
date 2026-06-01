@@ -3,6 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="theme-color" content="#1abc9c">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="RMZ Tools">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
     <title>RMZ TEAM - টুলস হাব</title>
     <style>
         * {
@@ -65,6 +71,7 @@
             display: none;
             padding: 20px;
             border-top: 3px solid #1abc9c;
+            animation: fadeIn 0.3s ease;
         }
         .tab-content.active {
             display: block;
@@ -75,6 +82,10 @@
             border: none;
             border-radius: 12px;
             background: white;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px);}
+            to { opacity: 1; transform: translateY(0);}
         }
         .info-note {
             background: #e8f4f8;
@@ -126,27 +137,30 @@
     </div>
     
     <div class="tabs">
-        <button class="tab-btn active" data-tab="tab1">📧 ইমেইল এক্সট্রাক্টর</button>
+        <button class="tab-btn active" data-tab="tab1">🔢 ২এফএ জেনারেটর</button>
         <button class="tab-btn" data-tab="tab2">🍪 কুকি টু ইউআইডি</button>
         <button class="tab-btn" data-tab="tab3">🔐 ফেইসবুক আইডি রিলিজ</button>
-        <button class="tab-btn" data-tab="tab4">🔢 ২এফএ জেনারেটর</button>
     </div>
 
     <div id="tab1" class="tab-content active">
-        <div class="info-note">📌 ইমেইল থেকে মেইল আলাদা করার টুল।</div>
-        <iframe src="https://abdulkhalekak.github.io/Khuruj-mail/"></iframe>
+        <div class="info-note">
+            📌 ২-ফ্যাক্টর অথেনটিকেশন কোড জেনারেটর। কোড কপি করতে উপরে চাপ দিন।
+        </div>
+        <iframe src="https://abdulkhalekak.github.io/My2fa-gen/" title="2FA Generator"></iframe>
     </div>
+
     <div id="tab2" class="tab-content">
-        <div class="info-note">📌 একাধিক কুকি পেস্ট করে ইউজার আইডি বের করুন।</div>
-        <iframe src="https://abdulkhalekak.github.io/Cookies-to-uid/"></iframe>
+        <div class="info-note">
+            📌 একাধিক কুকি পেস্ট করে ইউজার আইডি বের করুন।
+        </div>
+        <iframe src="https://abdulkhalekak.github.io/Cookies-to-uid/" title="Cookie to UID"></iframe>
     </div>
+
     <div id="tab3" class="tab-content">
-        <div class="info-note">📌 ফেইসবুক আইডি রিলিজ টুল।</div>
-        <iframe src="https://abdulkhalekak.github.io/Fb-id-relece-/"></iframe>
-    </div>
-    <div id="tab4" class="tab-content">
-        <div class="info-note">📌 ২-ফ্যাক্টর অথেনটিকেশন কোড জেনারেটর।</div>
-        <iframe src="https://abdulkhalekak.github.io/My2fa-gen/"></iframe>
+        <div class="info-note">
+            📌 ফেইসবুক আইডি রিলিজ টুল।
+        </div>
+        <iframe src="https://abdulkhalekak.github.io/Fb-id-relece-/" title="FB ID Release"></iframe>
     </div>
 </div>
 
