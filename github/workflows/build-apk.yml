@@ -1,0 +1,44 @@
+name: Build Android APK
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+      
+      - name: Install Cordova
+        run: npm install -g cordova
+      
+      - name: Build APK
+        run: |
+          cordova create app com.rmzteam.toolshub "RMZ Tools Hub"
+          cd app
+          cordova platform add android
+          rm -rf www/*
+          cp ../index.html www/index.html
+          cordova build android --release
+      
+      - name: Sign APK
+        run: |
+          cd app/platforms/android/app/build/outputs/apk/release/
+          keytool -genkey -v -keystore debug.keystore -alias debug -keyalg RSA -keysize 2048 -validity 10000 -storepass android -keypass android -dname "CN=RMZ, OU=ID, O=RMZ, L=Dhaka, ST=Dhaka, C=BD"
+          jarsigner -verbose -keystore debug.keystore -storepass android -keypass android app-release-unsigned.apk debug
+      
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: RMZ-Tools-Hub
+          path: app/platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk
