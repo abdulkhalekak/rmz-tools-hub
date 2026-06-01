@@ -22,23 +22,38 @@ jobs:
       - name: Install Cordova
         run: npm install -g cordova
       
-      - name: Build APK
+      - name: Build APK (not AAB)
         run: |
           cordova create app com.rmzteam.toolshub "RMZ Tools Hub"
           cd app
           cordova platform add android
           rm -rf www/*
           cp ../index.html www/index.html
-          cordova build android --release
+          
+          # Force APK instead of AAB
+          cordova build android --release -- --packageType=apk
+          
+          # Show where APK is
+          find . -name "*.apk" -type f
       
       - name: Sign APK
         run: |
-          cd app/platforms/android/app/build/outputs/apk/release/
-          keytool -genkey -v -keystore debug.keystore -alias debug -keyalg RSA -keysize 2048 -validity 10000 -storepass android -keypass android -dname "CN=RMZ, OU=ID, O=RMZ, L=Dhaka, ST=Dhaka, C=BD"
-          jarsigner -verbose -keystore debug.keystore -storepass android -keypass android app-release-unsigned.apk debug
+          # Find the APK file
+          APK_PATH=$(find app -name "*.apk" -type f | head -1)
+          APK_DIR=$(dirname $APK_PATH)
+          cd $APK_DIR
+          
+          # Generate keystore
+          keytool -genkey -v -keystore debug.keystore -alias debug -keyalg RSA -keysize 2048 -validity 10000 -storepass android -keypass android -dname "CN=RMZ, OU=ID, O=RMZ, L=Dhaka, ST=Dhaka, C=BD" 2>/dev/null
+          
+          # Sign the APK
+          jarsigner -verbose -keystore debug.keystore -storepass android -keypass android *.apk debug
+          
+          # Rename for easy download
+          cp *.apk /home/runner/work/rmz-tools-hub/rmz-tools-hub/RMZ-Tools-Hub.apk
       
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: RMZ-Tools-Hub
-          path: app/platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk
+          path: /home/runner/work/rmz-tools-hub/rmz-tools-hub/RMZ-Tools-Hub.apk
